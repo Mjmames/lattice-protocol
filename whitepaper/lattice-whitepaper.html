@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LATTICE — White Paper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --stone: #e8e4dc;
+    --mist: #f4f2ee;
+    --sky: #c8d4dc;
+    --silver: #9aa8b2;
+    --deep: #1a1e24;
+    --shadow: #2c3340;
+    --cloud: #dde4e8;
+    --gold: #b8a882;
+    --accent: #7a9aaa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--stone);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ---- NOISE OVERLAY ---- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ---- COVER ---- */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 80px 40px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 20%, rgba(120,155,175,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 30% 80%, rgba(184,168,130,0.07) 0%, transparent 60%),
+      var(--deep);
+    overflow: hidden;
+  }
+
+  .cover-architecture {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Architectural lines */
+  .arch-line {
+    position: absolute;
+    background: linear-gradient(to bottom, transparent, rgba(154,168,178,0.15), transparent);
+    width: 1px;
+    height: 100%;
+    animation: archFade 6s ease-in-out infinite;
+  }
+  .arch-line:nth-child(1) { left: 15%; animation-delay: 0s; }
+  .arch-line:nth-child(2) { left: 30%; animation-delay: 1.2s; opacity: 0.6; }
+  .arch-line:nth-child(3) { left: 50%; animation-delay: 0.8s; }
+  .arch-line:nth-child(4) { left: 70%; animation-delay: 2s; opacity: 0.6; }
+  .arch-line:nth-child(5) { left: 85%; animation-delay: 0.4s; }
+
+  @keyframes archFade {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  /* Horizontal arch beams */
+  .arch-beam {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(154,168,178,0.12), rgba(184,168,130,0.08), rgba(154,168,178,0.12), transparent);
+    animation: beamPulse 8s ease-in-out infinite;
+  }
+  .arch-beam:nth-child(6) { top: 20%; animation-delay: 0s; }
+  .arch-beam:nth-child(7) { top: 40%; animation-delay: 2s; }
+  .arch-beam:nth-child(8) { top: 60%; animation-delay: 4s; }
+  .arch-beam:nth-child(9) { top: 80%; animation-delay: 1s; }
+
+  @keyframes beamPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .cover-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(72px, 14vw, 140px);
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--stone);
+    position: relative;
+    z-index: 2;
+    animation: logoReveal 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  @keyframes logoReveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cover-rule {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 32px auto;
+    position: relative;
+    z-index: 2;
+    animation: ruleReveal 2s 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes ruleReveal {
+    to { opacity: 1; }
+  }
+
+  .cover-tagline {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: clamp(13px, 1.8vw, 17px);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--silver);
+    position: relative;
+    z-index: 2;
+    animation: logoReveal 2s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  .cover-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(16px, 2.5vw, 22px);
+    font-weight: 300;
+    color: var(--sky);
+    margin-top: 48px;
+    max-width: 600px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+    animation: logoReveal 2s 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  .cover-meta {
+    position: absolute;
+    bottom: 48px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(154,168,178,0.5);
+    text-transform: uppercase;
+    z-index: 2;
+    animation: logoReveal 2s 1.4s ease forwards;
+    opacity: 0;
+  }
+
+  /* ---- NAVIGATION ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    padding: 24px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(26,30,36,0.95), transparent);
+    mix-blend-mode: normal;
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    color: var(--stone);
+    font-weight: 300;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--stone); }
+
+  /* ---- MAIN CONTENT ---- */
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ---- SECTIONS ---- */
+  section {
+    padding: 100px 0;
+    border-bottom: 1px solid rgba(154,168,178,0.1);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-number {
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 200;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+  }
+
+  h2 {
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.15;
+    color: var(--stone);
+    margin-bottom: 40px;
+    letter-spacing: 0.02em;
+  }
+
+  h3 {
+    font-size: clamp(20px, 2.5vw, 26px);
+    color: var(--sky);
+    margin: 48px 0 20px;
+    letter-spacing: 0.04em;
+  }
+
+  p {
+    font-size: clamp(15px, 1.6vw, 17px);
+    color: rgba(232,228,220,0.82);
+    margin-bottom: 24px;
+    line-height: 1.9;
+  }
+
+  .lead {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(19px, 2.8vw, 26px);
+    color: var(--stone);
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+
+  /* ---- PULL QUOTES ---- */
+  .pull-quote {
+    border-left: 1px solid var(--gold);
+    padding: 24px 0 24px 40px;
+    margin: 56px 0;
+  }
+
+  .pull-quote p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(20px, 2.5vw, 28px);
+    color: var(--stone);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ---- RULE ---- */
+  .rule {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    margin: 40px 0;
+  }
+
+  /* ---- TIER TABLE ---- */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin: 48px 0;
+    background: rgba(154,168,178,0.1);
+    border: 1px solid rgba(154,168,178,0.15);
+  }
+
+  .tier-cell {
+    background: rgba(26,30,36,0.9);
+    padding: 32px 20px;
+    text-align: center;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .tier-cell:hover { background: rgba(44,51,64,0.9); }
+
+  .tier-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .tier-supply {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    color: var(--stone);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .tier-price {
+    font-size: 14px;
+    color: var(--silver);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .tier-raise {
+    font-size: 12px;
+    color: rgba(184,168,130,0.7);
+    letter-spacing: 0.05em;
+  }
+
+  .tier-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), var(--accent));
+    transition: width 0.6s ease;
+  }
+
+  .tier-cell:nth-child(1) .tier-bar { width: 10%; }
+  .tier-cell:nth-child(2) .tier-bar { width: 30%; }
+  .tier-cell:nth-child(3) .tier-bar { width: 60%; }
+  .tier-cell:nth-child(4) .tier-bar { width: 100%; }
+
+  /* ---- REVENUE SPLIT ---- */
+  .split-visual {
+    margin: 48px 0;
+  }
+
+  .split-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+  }
+
+  .split-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+    width: 130px;
+    flex-shrink: 0;
+  }
+
+  .split-bar-wrap {
+    flex: 1;
+    height: 2px;
+    background: rgba(154,168,178,0.12);
+    position: relative;
+  }
+
+  .split-bar-fill {
+    height: 100%;
+    position: relative;
+    transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .split-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--stone);
+    width: 50px;
+    text-align: right;
+  }
+
+  /* ---- PARTICIPANT TYPES ---- */
+  .participant-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin: 48px 0;
+    background: rgba(154,168,178,0.08);
+  }
+
+  .participant-card {
+    background: rgba(26,30,36,0.95);
+    padding: 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .participant-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  .participant-type {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--stone);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .participant-desc {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(154,168,178,0.9);
+  }
+
+  /* ---- FORMULA BLOCK ---- */
+  .formula-block {
+    background: rgba(44,51,64,0.5);
+    border: 1px solid rgba(154,168,178,0.15);
+    padding: 48px;
+    margin: 48px 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .formula-block::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(184,168,130,0.1);
+    pointer-events: none;
+  }
+
+  .formula-title {
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .formula {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 4vw, 40px);
+    color: var(--stone);
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+
+  .formula-note {
+    font-size: 13px;
+    color: var(--silver);
+    letter-spacing: 0.05em;
+    line-height: 1.7;
+  }
+
+  /* ---- VISION BLOCK ---- */
+  .vision-block {
+    background: radial-gradient(ellipse 100% 80% at 50% 50%, rgba(120,155,175,0.08) 0%, transparent 70%);
+    border: 1px solid rgba(154,168,178,0.1);
+    padding: 64px 56px;
+    margin: 64px 0;
+    text-align: center;
+  }
+
+  .vision-block p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(18px, 2.8vw, 28px);
+    color: var(--stone);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ---- LIST ITEMS ---- */
+  .clean-list {
+    list-style: none;
+    margin: 24px 0 32px;
+  }
+
+  .clean-list li {
+    font-size: clamp(14px, 1.5vw, 16px);
+    color: rgba(232,228,220,0.75);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(154,168,178,0.07);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .clean-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+
+  /* ---- DISCOVERY SPLIT ---- */
+  .discovery-visual {
+    display: flex;
+    height: 3px;
+    margin: 48px 0 32px;
+    gap: 4px;
+  }
+
+  .discovery-signed {
+    flex: 1;
+    background: linear-gradient(to right, var(--accent), var(--sky));
+    position: relative;
+  }
+
+  .discovery-unsigned {
+    flex: 1;
+    background: linear-gradient(to right, var(--gold), rgba(184,168,130,0.5));
+    position: relative;
+  }
+
+  .discovery-labels {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .discovery-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+
+  /* ---- PHASE TIMELINE ---- */
+  .phase-timeline {
+    margin: 48px 0;
+    position: relative;
+  }
+
+  .phase-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--gold), var(--accent), transparent);
+  }
+
+  .phase {
+    padding: 0 0 48px 40px;
+    position: relative;
+  }
+
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .phase-name {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .phase-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--stone);
+    margin-bottom: 12px;
+  }
+
+  .phase-desc {
+    font-size: 14px;
+    color: rgba(154,168,178,0.85);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  /* ---- CLOSING ---- */
+  .closing {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 40px;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 50%, rgba(184,168,130,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 80% at 20% 80%, rgba(120,155,175,0.07) 0%, transparent 60%);
+    border: none;
+  }
+
+  .closing h2 {
+    font-size: clamp(36px, 7vw, 72px);
+    margin-bottom: 32px;
+  }
+
+  .closing p {
+    max-width: 500px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--sky);
+  }
+
+  .closing .rule {
+    margin: 32px auto;
+  }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: rgba(154,168,178,0.3); border-radius: 2px; }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 700px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    main { padding: 0 24px; }
+    .tier-grid { grid-template-columns: repeat(2, 1fr); }
+    .participant-grid { grid-template-columns: 1fr; }
+    .formula-block { padding: 32px 24px; }
+    .vision-block { padding: 40px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <span class="nav-logo">LATTICE</span>
+  <ul class="nav-links">
+    <li><a href="#thesis">Thesis</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#economics">Economics</a></li>
+    <li><a href="#participants">Participants</a></li>
+    <li><a href="#discovery">Discovery</a></li>
+    <li><a href="#governance">Governance</a></li>
+    <li><a href="#vision">Vision</a></li>
+  </ul>
+</nav>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-architecture">
+    <div class="arch-line"></div>
+    <div class="arch-line"></div>
+    <div class="arch-line"></div>
+    <div class="arch-line"></div>
+    <div class="arch-line"></div>
+    <div class="arch-beam"></div>
+    <div class="arch-beam"></div>
+    <div class="arch-beam"></div>
+    <div class="arch-beam"></div>
+  </div>
+  <div class="cover-logo">LATTICE</div>
+  <div class="cover-rule"></div>
+  <div class="cover-tagline">A Cultural Infrastructure Protocol</div>
+  <div class="cover-subtitle">A new architecture for the relationship between artists and the people who believe in them — before certainty exists.</div>
+  <div class="cover-meta">White Paper — Version 1.0</div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- SECTION 1: THESIS -->
+  <section id="thesis">
+    <span class="section-number">01 — Thesis</span>
+    <h2>The Problem With Culture and Capital</h2>
+    <p class="lead">Most platforms are markets trying to imitate culture. LATTICE is a cultural world with an economy embedded inside it.</p>
+    <p>Something has gone wrong in the relationship between artists and the people who love them earliest. The infrastructure of music — streaming platforms, social algorithms, label structures — has systematically decoupled the moment of belief from any form of meaningful participation. You can discover an artist the week they record their first track, follow them for six years, attend every show, and post every link. The platform captures the value. The artist remains dependent on institutional validation. And you remain a viewer.</p>
+    <p>This is not a failure of intention. It is a failure of architecture.</p>
+    <p>LATTICE is built on a different premise: that belief itself should have economic weight, that the people who arrive before certainty exists deserve a different kind of standing, and that platforms can be designed to serve artists first, believers second, and institutions a distant third.</p>
+    <div class="pull-quote">
+      <p>"The early believers still got the best emotional position. Not because they paid more — because they entered before certainty existed. That's the soul of the system."</p>
+    </div>
+    <p>The result is not a new streaming service. It is not an NFT marketplace. It is not a fan token protocol. LATTICE is a new category: a decentralized cultural infrastructure company, building the economic layer that should have always existed beneath art.</p>
+  </section>
+
+  <!-- SECTION 2: ARCHITECTURE -->
+  <section id="architecture">
+    <span class="section-number">02 — Architecture</span>
+    <h2>Shards, Tiers, and the Shape of Belief</h2>
+    <p class="lead">A Shard is the unit of ownership. Not a collectible. Not a certificate. A Shard is a share of cultural participation — capped, tiered, and mathematically honest.</p>
+    <p>Each artist on LATTICE maintains a structured participation layer built from ERC-1155 semi-fungible tokens. This technical choice is deliberate: ERC-1155 enables what might be described as the middle space between a token and an equity stake — fungible within a tier, scarce across them, and collectively composable through the quadratic belief engine.</p>
+    <h3>Structure per Artist</h3>
+    <p>Each release is mapped to a distinct Shard pool. The pool is defined by three coordinates: <strong>Artist + Project + Tier</strong>. Within that coordinate, all Shards are fungible. Across coordinates, they tell different stories.</p>
+
+    <div class="formula-block">
+      <span class="formula-title">The Quadratic Belief Engine</span>
+      <div class="formula">B = Σ √sᵢ</div>
+      <div class="formula-note">Where sᵢ = number of Shards held by wallet i<br>Belief weight is proportional to the square root of holdings — distributing influence broadly, resisting whale dominance</div>
+    </div>
+
+    <p>This formula does something quietly important: it prevents any single holder from accumulating disproportionate governance or cultural weight. A holder with 100 Shards does not hold ten times the belief weight of a holder with 10 Shards. They hold approximately 3.16 times. The distribution flattens. Participation broadens. The ecosystem benefits from many voices rather than a few dominant ones.</p>
+    <h3>The Four Tiers</h3>
+    <p>Tiers progress with an artist's cultural trajectory. Earlier tiers have smaller supply and lower cost. Later tiers reflect cultural validation — more accessible in quantity, more expensive per unit, and available only when the artist has reached the scale to warrant them.</p>
+
+    <div class="tier-grid">
+      <div class="tier-cell">
+        <span class="tier-label">Tier 1 — Origin</span>
+        <span class="tier-supply">100</span>
+        <span class="tier-price">$10 per Shard</span>
+        <span class="tier-raise">Max $1,000</span>
+        <div class="tier-bar"></div>
+      </div>
+      <div class="tier-cell">
+        <span class="tier-label">Tier 2 — Rise</span>
+        <span class="tier-supply">1,000</span>
+        <span class="tier-price">$20 per Shard</span>
+        <span class="tier-raise">Max $20,000</span>
+        <div class="tier-bar"></div>
+      </div>
+      <div class="tier-cell">
+        <span class="tier-label">Tier 3 — Signal</span>
+        <span class="tier-supply">10,000</span>
+        <span class="tier-price">$50 per Shard</span>
+        <span class="tier-raise">Max $500,000</span>
+        <div class="tier-bar"></div>
+      </div>
+      <div class="tier-cell">
+        <span class="tier-label">Tier 4 — Scale</span>
+        <span class="tier-supply">100,000</span>
+        <span class="tier-price">$125 per Shard</span>
+        <span class="tier-raise">Max $12,500,000</span>
+        <div class="tier-bar"></div>
+      </div>
+    </div>
+
+    <p>The wallet cap — maximum 5 Shards per wallet per tier — enforces broad participation as a design principle, not just a policy. Tier 4's economics, which approach digital entertainment market capitalization at scale, are tempered by this constraint. The system cannot be monopolized. It can only be participated in.</p>
+    <p>What emerges is a dual identity structure. Tier 1 holders carry historical prestige — the provenance of arrival before proof. Tier 4 holders carry scale participation — entry at the moment of cultural confirmation. Both identities are valid. Neither cancels the other.</p>
+  </section>
+
+  <!-- SECTION 3: ECONOMICS -->
+  <section id="economics">
+    <span class="section-number">03 — Economics</span>
+    <h2>Revenue Architecture: Artists First</h2>
+    <p class="lead">The emotional promise of LATTICE is artists first, belief second, institution third. The economic structure enforces that promise with numbers.</p>
+    <p>Revenue flows through two channels: primary sales at initial mint, and secondary sales when Shards change hands on the marketplace. Both are structured to keep the platform non-extractive and the artist economically dominant.</p>
+
+    <h3>Primary Sales</h3>
+    <div class="split-visual">
+      <div class="split-row">
+        <span class="split-label">Artist</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:80%; background: linear-gradient(to right, var(--stone), rgba(232,228,220,0.4));"></div></div>
+        <span class="split-value">80%</span>
+      </div>
+      <div class="split-row">
+        <span class="split-label">Treasury</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:5%; background: linear-gradient(to right, var(--gold), rgba(184,168,130,0.4));"></div></div>
+        <span class="split-value">5%</span>
+      </div>
+      <div class="split-row">
+        <span class="split-label">Foundation</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:15%; background: linear-gradient(to right, var(--accent), rgba(122,154,170,0.4));"></div></div>
+        <span class="split-value">15%</span>
+      </div>
+    </div>
+
+    <h3>Secondary Sales</h3>
+    <div class="split-visual">
+      <div class="split-row">
+        <span class="split-label">Seller</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:90%; background: linear-gradient(to right, var(--stone), rgba(232,228,220,0.4));"></div></div>
+        <span class="split-value">90%</span>
+      </div>
+      <div class="split-row">
+        <span class="split-label">Treasury</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:5%; background: linear-gradient(to right, var(--gold), rgba(184,168,130,0.4));"></div></div>
+        <span class="split-value">5%</span>
+      </div>
+      <div class="split-row">
+        <span class="split-label">Foundation</span>
+        <div class="split-bar-wrap"><div class="split-bar-fill" style="width:5%; background: linear-gradient(to right, var(--accent), rgba(122,154,170,0.4));"></div></div>
+        <span class="split-value">5%</span>
+      </div>
+    </div>
+
+    <h3>The Treasury</h3>
+    <p>The treasury operates as perpetual ecosystem capital — funded by a fixed percentage of all transactions without requiring token inflation or separate fundraising mechanisms. It is not controlled by the Foundation. It is governed by the community in proportion to their participation weight.</p>
+    <p>Treasury allocation covers: artist grants, legal and compliance infrastructure, protocol audits, emergency reserves, community initiatives, and development. This creates a self-sustaining ecosystem that does not depend on external fundraising rounds to remain operational.</p>
+    <h3>What LATTICE Does Not Own</h3>
+    <p>The artist retains masters, copyright, branding, creative control, and the overwhelming majority of economic upside. LATTICE does not hold equity in artists. It does not hold licensing rights. It provides infrastructure and takes a small operational fee for doing so. That distinction is the ethical foundation of the entire system.</p>
+  </section>
+
+  <!-- SECTION 4: PARTICIPANTS -->
+  <section id="participants">
+    <span class="section-number">04 — Participants</span>
+    <h2>Three Ways to Belong</h2>
+    <p class="lead">Not everyone who participates in a cultural world does so through capital. LATTICE recognizes three distinct modes of participation — each valid, each traceable, each rewarded.</p>
+
+    <div class="participant-grid">
+      <div class="participant-card">
+        <span class="participant-type">Listeners</span>
+        <p class="participant-desc">People consuming the music normally. Streaming. Watching. Following. Experiencing the culture. No ownership required. The largest population and the source of signal that validates belief held by others.</p>
+      </div>
+      <div class="participant-card">
+        <span class="participant-type">Holders</span>
+        <p class="participant-desc">People who purchase and hold Shards, expressing belief through capital. They receive revenue participation, access rights, historical positioning, ecosystem status, and event access. Holders are the economic backbone of the system.</p>
+      </div>
+      <div class="participant-card">
+        <span class="participant-type">Earners</span>
+        <p class="participant-desc">People receiving Shards through contribution rather than purchase. Promoters, community builders, visual artists, remixers, moderators, editors, curators, developers, superfans generating measurable momentum. Participation itself becomes economically visible.</p>
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      <p>"Purchased Shards = belief through capital. Earned Shards = belief through contribution. Both are valid. But they represent different forms of participation inside the culture."</p>
+    </div>
+
+    <p>The Earner layer is what separates LATTICE from a simple financial instrument. When contribution has economic weight equal to capital, the platform stops feeling like a market. It starts feeling like a world that has always had an economy — not a marketplace that has borrowed cultural aesthetics.</p>
+    <p>This matters most at the community level. The people who build genuine cultural momentum around artists — the ones who share, translate, design, promote, and advocate — are currently invisible to the economic record. LATTICE makes them visible. Not as a courtesy feature. As a structural commitment.</p>
+  </section>
+
+  <!-- SECTION 5: DISCOVERY -->
+  <section id="discovery">
+    <span class="section-number">05 — Discovery</span>
+    <h2>The 50/50 Principle</h2>
+    <p class="lead">Most platforms become who already has momentum. LATTICE intentionally leaves room for emergence and accident.</p>
+    <p>The discovery feed operates on a structural split that is enforced by design, not left to algorithmic drift. At any given moment, the discovery surface is divided equally between two categories:</p>
+
+    <div class="discovery-visual">
+      <div class="discovery-signed"></div>
+      <div class="discovery-unsigned"></div>
+    </div>
+    <div class="discovery-labels">
+      <span class="discovery-label">50% — Signed Artists</span>
+      <span class="discovery-label">Unsigned Artists — 50%</span>
+    </div>
+
+    <p>Signed artists have institutional validation, cultural proof, and momentum behind them. Unsigned artists have none of those things. The 50/50 split means the platform can never fully collapse into a popularity feedback loop — the mathematical gravity that destroys discovery on every existing platform.</p>
+    <p>Half the surface area is permanently reserved for the unknown. This is not an editorial choice. It is a protocol-level commitment. The next important artist should still be able to appear from nowhere.</p>
+    <p>This is a governance decision disguised as a UX feature. Most platforms would never make this choice voluntarily because it reduces short-term engagement metrics. Making it structural removes the temptation to abandon it when growth pressure increases.</p>
+    <p>The 50/50 split also communicates something to every unsigned artist who joins the platform: you will be seen. Not because you paid for placement. Not because an algorithm decided you were already trending. Because the platform was built to guarantee you a surface.</p>
+  </section>
+
+  <!-- SECTION 6: GOVERNANCE -->
+  <section id="governance">
+    <span class="section-number">06 — Governance</span>
+    <h2>Decentralization as a Timeline</h2>
+    <p class="lead">Governance is not decentralized on day one. It is decentralized according to a schedule tied to participation milestones — building trust before transferring authority.</p>
+    <p>The Foundation holds administrative authority in the protocol's early phases. This is not a compromise of the decentralized vision. It is an acknowledgment that premature decentralization produces dysfunction, and that the community's authority should grow proportionally with its size, experience, and demonstrated commitment to the ecosystem.</p>
+
+    <div class="phase-timeline">
+      <div class="phase">
+        <div class="phase-name">Phase One</div>
+        <div class="phase-title">Foundation Authority</div>
+        <p class="phase-desc">Infrastructure built, protocol deployed, initial artist onboarding. Governance decisions made by the Foundation with transparency logs accessible to all participants.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-name">Phase Two</div>
+        <div class="phase-title">Community Voice</div>
+        <p class="phase-desc">Shard holders gain proposal and signaling rights. The Foundation retains veto authority. Community participation begins shaping non-critical protocol decisions.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-name">Phase Three</div>
+        <div class="phase-title">Shared Governance</div>
+        <p class="phase-desc">Multi-sig authority distributed between Foundation and community-elected council. Supermajority quorum required for major protocol changes. Treasury governance transitions to community control.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-name">Phase Four</div>
+        <div class="phase-title">Protocol Autonomy</div>
+        <p class="phase-desc">Foundation retains operational infrastructure role only. Governance fully community-held. Revenue split targets achieved: 60% participant, 40% Foundation by Year 4.</p>
+      </div>
+    </div>
+
+    <p>Voting weight is determined by the quadratic belief formula applied across total Shard holdings — not raw token counts, not staking multipliers, not delegation chains. One's governance weight reflects one's breadth of participation across the ecosystem, not the depth of a single position.</p>
+    <h3>What Governance Controls</h3>
+    <ul class="clean-list">
+      <li>Treasury allocation proposals and approvals</li>
+      <li>Tier unlock thresholds for individual artists</li>
+      <li>Marketplace fee structures</li>
+      <li>Artist grant distributions</li>
+      <li>Protocol upgrade ratification</li>
+      <li>Emergency pause and recovery procedures</li>
+      <li>Community initiative funding</li>
+    </ul>
+    <h3>What Governance Does Not Control</h3>
+    <ul class="clean-list">
+      <li>Individual artist creative decisions</li>
+      <li>Artist onboarding or offboarding</li>
+      <li>Master rights or copyright of any work</li>
+      <li>Artist revenue entitlement</li>
+    </ul>
+  </section>
+
+  <!-- SECTION 7: TECHNOLOGY -->
+  <section id="technology">
+    <span class="section-number">07 — Technology</span>
+    <h2>Infrastructure Without Theater</h2>
+    <p class="lead">The technology should be invisible. The culture should be visible. Infrastructure serves the world. It does not define it.</p>
+    <p>LATTICE is built on ERC-1155 for Shard issuance — chosen for its semi-fungibility, gas efficiency at scale, and composability with the quadratic belief engine. The contract architecture is organized around the core participation primitives: issuance, transfer, participation tracking, and treasury routing.</p>
+    <h3>Core Contract Clusters</h3>
+    <ul class="clean-list">
+      <li>ShardRegistry — issuance, tier management, wallet cap enforcement</li>
+      <li>BeliefEngine — quadratic weight computation, governance aggregation</li>
+      <li>RevenueRouter — primary and secondary split execution, treasury deposits</li>
+      <li>EarnerRegistry — contribution-based Shard issuance and verification</li>
+      <li>GovernanceModule — proposal lifecycle, quorum tracking, execution</li>
+    </ul>
+    <h3>Storage and Identity</h3>
+    <p>Participation records, artist metadata, and community contributions are stored on Arweave for permanent accessibility — ensuring the cultural record persists independent of the Foundation's operational continuity. IPFS handles active media delivery. The combination provides both durability and performance.</p>
+    <h3>The AI Layer</h3>
+    <p>Artificial intelligence on LATTICE is not an optimization engine. It is a quiet institutional guide — designed to help artists understand momentum without reducing their work to spreadsheets.</p>
+    <ul class="clean-list">
+      <li>Audience resonance analysis — signal, not surveillance</li>
+      <li>Release timing recommendations based on ecosystem activity</li>
+      <li>Visual atmosphere generation for world-building and artist identity</li>
+      <li>Emotional trend detection across listener engagement patterns</li>
+      <li>Event and activation recommendations calibrated to community readiness</li>
+    </ul>
+    <p>The artist dashboard reflects this philosophy. Not hyper-financial trading interfaces. Signal, growth, belief progression, participation, world interaction. Enough to understand momentum. Not enough to confuse art with metrics.</p>
+  </section>
+
+  <!-- SECTION 8: WORLD -->
+  <section id="world">
+    <span class="section-number">08 — The World</span>
+    <h2>Architecture of Belief</h2>
+    <p class="lead">LATTICE is not cyberpunk. Not metaverse cliché. It is a dreamlike elevated civilization — ancient and futuristic simultaneously, spiritual without dogma, architectural in its bones.</p>
+    <p>The visual identity of the platform draws from a specific imaginary: clouds, stone, glass, silver light. Mountain air. Massive structures. A world that feels as if Atlantis was rebuilt above the world instead of beneath it. Not religious exactly, but spiritually architectural — the sense that important things have happened here and will continue to happen.</p>
+    <p>This distinction matters because every existing Web3 environment occupies the same visual territory: neon, darkness, aggression, speed. LATTICE occupies different territory entirely. It belongs to a category of spaces that feel earned rather than hyped. That feel old rather than launched. That feel inhabited rather than rendered.</p>
+    <p>The social structure reflects this. Comments and community exist. The absence of remix mechanics in the early protocol is intentional — restraint as aesthetic and legal clarity. What is present is present completely. What is absent is absent by design.</p>
+
+    <div class="vision-block">
+      <p>When an artist joins LATTICE, they are not listing an asset on a marketplace. They are building a world. When a believer holds a Shard, they are not holding a position. They are holding a piece of that world's founding moment — permanently, architecturally, on the record.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 9: LEGACY -->
+  <section id="vision">
+    <span class="section-number">09 — Legacy</span>
+    <h2>The Preservation</h2>
+    <p class="lead">Over time, LATTICE may become the deepest archive of artistic emergence across generations. Not because it was designed to be a museum — but because belief itself leaves a permanent architectural trace.</p>
+    <p>The artist death policy is deliberately mature. Rights and inheritance remain tied to the artist's estate structure, while Shards themselves remain historically and economically active. Holders are not renting temporary illusions. They are participating in releases. The cultural record persists even after death.</p>
+    <p>This means a Tier 1 holder from the year an artist first appeared on LATTICE will carry that provenance forward indefinitely. Their participation is not a transaction that expired. It is a permanent entry in the record of who believed, when, and in what.</p>
+    <p>That may be the deepest part of the whole thing. Not the money. Not the technology. Not the governance architecture.</p>
+    <p>The preservation.</p>
+    <div class="rule"></div>
+    <p>The idea that belief itself leaves a permanent architectural trace. That the people who arrived before certainty existed will always be able to prove it. That culture is not ephemeral — and neither is the act of caring about it before anyone else did.</p>
+
+    <div class="pull-quote">
+      <p>"A living archive of artistic emergence across generations. The cultural record that should have always existed, finally made permanent."</p>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing" id="closing">
+    <div class="cover-logo" style="font-size: clamp(48px, 8vw, 80px); opacity: 1; transform: none; animation: none;">LATTICE</div>
+    <div class="rule" style="margin: 32px auto;"></div>
+    <p>Built for artists. Built for believers.<br>Built to last longer than certainty.</p>
+  </section>
+
+</main>
+
+<script>
+  // Intersection Observer for section reveals
+  const sections = document.querySelectorAll('section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Animate split bars on scroll
+  const splitObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.split-bar-fill').forEach(bar => {
+          const w = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => { bar.style.width = w; }, 100);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.split-visual').forEach(v => splitObserver.observe(v));
+</script>
+
+</body>
+</html>
